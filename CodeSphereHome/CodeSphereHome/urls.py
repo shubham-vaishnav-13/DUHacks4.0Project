@@ -20,10 +20,10 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('CodeEditor/', include('CodeEditor.urls')),
+    path('CodeEditor/', include('CodeEditor.urls')),
     path('', include('HomePageAuth.urls')),
     # path('StaffManage/', include('StaffManage.urls')),
-    path('StudentManage/', include('StudentManage.urls')),
-
+    # path('StudentManage/', include('StudentManage.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
 ]

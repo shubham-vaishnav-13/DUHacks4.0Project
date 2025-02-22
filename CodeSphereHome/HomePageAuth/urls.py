@@ -1,9 +1,9 @@
 from django.urls import path
 from .views import *
 from django.contrib.auth import views as auth_views
-from .forms import CustomPasswordResetForm  # ✅ Import the custom form
+from .forms import CustomPasswordResetForm  # Import the custom form
 
-app_name = "HomePageAuth"  # ✅ Namespace for URL names
+app_name = "HomePageAuth"  # Namespace for URL names
 
 urlpatterns = [
     path('', home, name="home"),
@@ -11,10 +11,10 @@ urlpatterns = [
     path('login/', login_view, name="login"),
     path('logout/', logout_view, name="logout"),
 
-    # ✅ Email Verification URL
+    #  Email Verification URL
     path("verify-email/", verify_email, name="verify_email"),
 
-    # ✅ Password Reset URLs (Using Django's built-in views but with custom templates)
+    #  Password Reset URLs (Using Django's built-in views but with custom templates)
     path("password-reset/", auth_views.PasswordResetView.as_view(
         template_name="registration/password_reset_form.html",
         form_class=CustomPasswordResetForm  #
