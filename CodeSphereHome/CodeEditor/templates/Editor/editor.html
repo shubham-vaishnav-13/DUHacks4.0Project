@@ -8,6 +8,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/ace.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.9.6/ext-language_tools.js"></script>
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
   </head>
   <body class="bg-gray-900 text-white p-5" id="body">
     <div class="max-w-5xl mx-auto">
@@ -28,7 +30,7 @@
           <option value="twilight">Twilight</option>
           <option value="xcode">Xcode</option>
         </select>
-        <div>
+        <div id="buttons" class="flex space-x-6">
           <button
             onclick="decreaseFontSize()"
             class="bg-yellow-500 p-2 rounded"
