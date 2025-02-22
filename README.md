@@ -29,9 +29,9 @@ This project is a comprehensive platform designed for DDU college students and f
 ---
 
 ## 🛠 Tech Stack
-🔹 **Frontend:** HTML, CSS, JavaScript  
+🔹 **Frontend:** HTML, CSS, JavaScript , Tailwind CSS
 🔹 **Backend:** Django and It's Inbuilt Services 
-🔹 **Database:** MySQL  
+🔹 **Database:** SQLite3
 🔹 **Deployment:** GitHub  
 
 ---
@@ -39,36 +39,32 @@ This project is a comprehensive platform designed for DDU college students and f
 ## 📥 Installation & Setup
 ### 🔧 Clone the repository:
 ```sh
- git clone https://github.com/your-repo/ddu-platform.git
- cd ddu-platform
+ git clone https://github.com/shubham-vaishnav-13/DUHacks4.0Project.git
+ cd CodeSphereHome
 ```
 
 ### ⚙️ Set up the backend:
 ```sh
- cd backend
- python -m venv env
- source env/bin/activate  # On Windows use `env\Scripts\activate`
+ python -m venv .venv
+ source venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+ cd CodeSphereHome
+
  pip install -r requirements.txt
+ cd CodeSphereHome
  python manage.py migrate
  python manage.py runserver
 ```
 
-### 🎨 Set up the frontend:
-```sh
- cd frontend
- Open index.html in a browser
-```
-
----
 
 ## 🏆 Why This Project?
 🌟 Simplifies classroom and assignment management.  
 🌟 Provides a built-in code editor for coding tasks.  
 🌟 Ensures secure access with email verification.  
+🌟 Copy paste free code submission.
 
 ---
-## Our Team
-- Darshan Kania
+## Our Team 
+- Darshan Kania 
 - Deep Vaishnav
 - Manthan Parekh
 - Shubham Vaishnav
