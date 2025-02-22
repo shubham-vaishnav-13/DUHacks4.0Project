@@ -47,7 +47,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / "HomePageAuth/templates",  # ✅ Custom templates for authentication
+            BASE_DIR / "HomePageAuth/templates",
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -77,15 +77,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# ✅ Email settings (for development/testing)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#  Email settings (for development/testing)
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# ✅ Custom Authentication for Different Users
+#  Custom Authentication for Different Users
 AUTH_USER_MODEL = 'HomePageAuth.User'  # Use custom user model for web app users
 
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -104,14 +104,14 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-# ✅ Static Files
+#  Static Files
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, 'HomePageAuth', 'static'),  # App-level static files
 ]
 
-# ✅ Media Files (For Profile Pictures)
+#  Media Files (For Profile Pictures)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
