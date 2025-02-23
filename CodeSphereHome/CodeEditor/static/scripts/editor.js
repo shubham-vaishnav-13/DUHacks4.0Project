@@ -40,15 +40,40 @@ function decreaseFontSize() {
 }
 
 function saveCode() {
-    fragment = document.createElement("p");
-    fragment.innerHTML = "Saved Code Successfully";
-    fragment.classList.add("bg-green-500", "p-2", "rounded");
-    document
-        .getElementById("buttons")
-        .insertAdjacentElement("afterend", fragment);
-    setTimeout(() => {
-        fragment.remove();
-    }, 3000);
+    let code = editor.getValue();
+    let language = document.getElementById("language").value;
+    fetch('/save_code/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code: code, language: language })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            fragment = document.createElement("p");
+            fragment.innerHTML = "Saved Code Successfully";
+            fragment.classList.add("bg-green-500", "p-2", "rounded");
+            document
+                .getElementById("buttons")
+                .insertAdjacentElement("afterend", fragment);
+            setTimeout(() => {
+                fragment.remove();
+            }, 3000);
+        } else {
+            // Handle error, display error message
+            fragment = document.createElement("p");
+            fragment.innerHTML = "Error saving code: " + data.error;
+            fragment.classList.add("bg-red-500", "p-2", "rounded");
+            document
+                .getElementById("buttons")
+                .insertAdjacentElement("afterend", fragment);
+            setTimeout(() => {
+                fragment.remove();
+            }, 3000);
+        }
+    });
 }
 
 function exportCode() {

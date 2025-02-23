@@ -12,18 +12,19 @@ class Role(models.Model):
     role_name = models.CharField(
         max_length=20, choices=ROLE_CHOICES, unique=True)
 
-    def __str__(self):
+    def _str_(self):
         return self.role_name
 
 #  Custom User Manager
 
 
-class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
+class UserManager(BaseUserManager):
+    def create_user(self, email, username, password=None, role=None):
+        """Creates and returns a normal user (Students, Teachers)"""
         if not email:
-            raise ValueError('The Email field must be set')
+            raise ValueError("Users must have an email address")
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(email=email, username=username, role=role)
         user.set_password(password)
         user.save(using=self._db)
         return user
@@ -36,12 +37,12 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+
 #  Custom User Model (For App Users: Students, Teachers)
 
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=150, unique=True, null=True, blank=True)
     role = models.ForeignKey(
         Role, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -55,8 +56,8 @@ class User(AbstractUser):
     user_permissions = models.ManyToManyField(
         Permission, related_name="custom_user_permissions_set", blank=True)
 
-    def __str__(self):
-        return self.email
+    def _str_(self):
+        return self.username
 
 #  Profile Model (For additional user details)
 
@@ -115,5 +116,5 @@ class Profile(models.Model):
 
     social_links = models.JSONField(default=dict, blank=True)
 
-    def __str__(self):
+    def _str_(self):
         return self.user.username

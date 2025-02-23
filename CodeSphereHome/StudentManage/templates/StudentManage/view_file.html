@@ -1,14 +1,29 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View File</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>{{ file.file_name }}</h1>
-    <p>Subject: {{ file.subject }}</p>
-    <p>Uploaded on: {{ file.uploaded_at|date:"M d, Y" }}</p>
-    <a href="{{ file.file.url }}">Download</a>
+<body class="bg-gray-900 text-white">
+    <div class="container mx-auto p-6">
+        <h1 class="text-center text-2xl font-bold">{{ file.file_name }}</h1>
+        <p class="text-center text-gray-400 mb-4">Subject: {{ file.subject }}</p>
+
+        {% if file.file.url %}
+            {% if file.file.url|slice:"-4:" == ".pdf" %}
+                <iframe src="{{ file.file.url }}" class="w-full h-[80vh]"></iframe>
+            {% elif file.file.url|slice:"-4:" == ".txt" or file.file.url|slice:"-3:" == ".py" or file.file.url|slice:"-2:" == ".c" or file.file.url|slice:"-4:" == ".cpp" %}
+                <pre class="bg-gray-800 p-4 rounded-lg overflow-auto">{{ file.file.read|safe }}</pre>
+            {% else %}
+                <p class="text-center text-red-400">Preview not available for this file type.</p>
+                <iframe src="{{ file.file.url }}" class="w-full h-[80vh]"></iframe>
+                {% endif %}
+        {% else %}
+            <p class="text-center text-red-400">File not found.</p>
+        {% endif %}
+    </div>
 </body>
 </html>
