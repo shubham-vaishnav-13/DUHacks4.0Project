@@ -15,7 +15,7 @@ class Role(models.Model):
     def __str__(self):
         return self.role_name
 
-#  Custom User Manager (For HomePageAuth Users)
+#  Custom User Manager
 
 
 class CustomUserManager(BaseUserManager):
@@ -28,17 +28,13 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('is_active', True)
-
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
-        return self.create_user(email, password, **extra_fields)
+    def create_superuser(self, username, email, password=None):
+        """Creates and returns a superuser using the custom User model"""
+        user = self.create_user(email, username, password)
+        user.is_superuser = True
+        user.is_staff = True
+        user.save(using=self._db)
+        return user
 
 #  Custom User Model (For App Users: Students, Teachers)
 
@@ -49,20 +45,15 @@ class User(AbstractUser):
     role = models.ForeignKey(
         Role, on_delete=models.SET_NULL, null=True, blank=True)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    objects = UserManager()
 
-    #  Prevents non-admin users from accessing Django Admin
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    is_email_verified = models.BooleanField(default=False)  # NEW FIELD
+    is_email_verified = models.BooleanField(default=False)
     groups = models.ManyToManyField(
         Group, related_name="custom_user_set", blank=True)
     user_permissions = models.ManyToManyField(
-        Permission, related_name="custom_user_permissions_set", blank=True
-    )
-
-    objects = CustomUserManager()
+        Permission, related_name="custom_user_permissions_set", blank=True)
 
     def __str__(self):
         return self.email
@@ -71,6 +62,35 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
+    #  Faculty Types
+    FACULTY_CHOICES = [
+        ('technology', 'Faculty of Technology'),
+        ('medical', 'Faculty of Medical Science'),
+        ('MBA', 'Faculty of Management Studies'),
+        ('arts', 'Faculty of Arts'),
+    ]
+
+    #  Degree Types
+    DEGREE_CHOICES = [
+        ('btech', 'B.Tech'),
+        ('mtech', 'M.Tech'),
+        ('mbbs', 'MBBS'),
+        ('msc', 'M.Sc'),
+        ('bsc', 'B.Sc'),
+        ('ba', 'B.A'),
+        ('ma', 'M.A'),
+    ]
+
+    #  Branches (Engineering Example)
+    BRANCH_CHOICES = [
+        ('ce', 'Computer Engineering'),
+        ('ec', 'Electronics & Communication'),
+        ('ch', 'Chemical Engineering'),
+        ('me', 'Mechanical Engineering'),
+        ('mh', 'Mechatronics Engineering'),
+    ]
+
+    #  Gender Choices
     GENDER_CHOICES = [
         ('male', 'Male'),
         ('female', 'Female'),
@@ -79,36 +99,28 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=255)
-    bio = models.TextField(blank=True, null=True)
-    contact_number = models.CharField(max_length=15, blank=True, null=True)
-    address = models.TextField(blank=True, null=True)  # NEW FIELD
-    gender = models.CharField(
-        max_length=10, choices=GENDER_CHOICES, blank=True, null=True)  # NEW FIELD
-    date_of_birth = models.DateField(blank=True, null=True)  # NEW FIELD
-    social_links = models.JSONField(default=dict, blank=True)
-    image = models.ImageField(
+
+    faculty_type = models.CharField(
+        max_length=50, choices=FACULTY_CHOICES, blank=True, null=True)
+    degree_type = models.CharField(
+        max_length=50, choices=DEGREE_CHOICES, blank=True, null=True)
+    branch = models.CharField(
+        max_length=50, choices=BRANCH_CHOICES, blank=True, null=True)
+    semester = models.PositiveIntegerField(
+        blank=True, null=True)
+
+    date_of_birth = models.DateField(blank=True, null=True)
+
+    profile_picture = models.ImageField(
         upload_to="profile_pics/", default="default.jpg", blank=True, null=True)
 
+    contact_number = models.CharField(max_length=15, blank=True, null=True)
+    father_contact_number = models.CharField(
+        max_length=15, blank=True, null=True)
+    mother_contact_number = models.CharField(
+        max_length=15, blank=True, null=True)
+
+    social_links = models.JSONField(default=dict, blank=True)
+
     def __str__(self):
-        return self.user.email
-
-#  Login History Model (Tracks login attempts)
-
-
-class LoginHistory(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    login_time = models.DateTimeField(auto_now_add=True)
-    ip_address = models.GenericIPAddressField()
-    device_info = models.JSONField(default=dict)
-    status = models.CharField(
-        max_length=10, choices=[('Success', 'Success'), ('Failed', 'Failed')]
-    )
-
-#  Password Reset Model
-
-
-class PasswordReset(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    reset_token = models.CharField(max_length=50, unique=True)
-    expires_at = models.DateTimeField()
-    is_used = models.BooleanField(default=False)
+        return self.user.username
