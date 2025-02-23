@@ -1,17 +1,17 @@
-from django.shortcuts import render,redirect
-from .models import CodeFile
-from django.http import FileResponse
-from django.contrib.auth.decorators import login_required
 import os
+import json
+import subprocess
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponse, Http404
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
-from django.http import HttpResponse, Http404
 from urllib.parse import quote
-
-# Create your views here.
+from .models import CodeFile
 
 @login_required
 def home(request):
-    return render(request,'StudentManage/home.html',{'files':CodeFile.objects.all(),'student':request.user})
+    return render(request, 'StudentManage/home.html', {'files': CodeFile.objects.all(), 'student': request.user})
 
 def upload_file(request):
     if request.method == 'POST':
@@ -21,49 +21,113 @@ def upload_file(request):
         CodeFile.objects.create(file_name=file_name, subject=subject, file=file, student=request.user)
     return redirect('home')
 
-from django.shortcuts import redirect, get_object_or_404
-
 def delete_file(request, file_id):
-    if request.method == 'POST':
-        file = get_object_or_404(CodeFile, id=file_id)
-        file.delete()
-        return redirect('home')  # Redirect to the home page or another appropriate page
-    return redirect('home')  # Redirect if not a POST request
-
+    file = get_object_or_404(CodeFile, id=file_id)
+    file.delete()
+    return redirect('home')
 
 def download_file(request, file_id):
     file = get_object_or_404(CodeFile, id=file_id)
     file_path = file.file.path
-    file_name = file.file_name  # Use the stored file name
-
+    file_name = file.file_name
     try:
         with open(file_path, 'rb') as f:
             response = HttpResponse(f.read(), content_type="application/force-download")
-            response['Content-Disposition'] = f'attachment; filename="{quote(file_name)}"'  # Properly encode the filename
+            response['Content-Disposition'] = f'attachment; filename="{quote(file_name)}"'
             return response
     except FileNotFoundError:
         raise Http404("File not found")
 
-
 def view_file(request, file_id):
     file_obj = get_object_or_404(CodeFile, id=file_id)
     file_path = file_obj.file.path
-    file_name = os.path.basename(file_path)
     try:
         with open(file_path, 'r') as f:
             file_content = f.read()
-            if file_name.lower().endswith(('.txt', '.py', '.c', '.cpp', '.java', '.js', '.html','.css','.go','.rb','.swift','.rs','.dart','.ts','.json')): #Added more file extensions for better theme support
-                return render(request, 'StudentManage/view_file.html', {'file': file_obj})
-            elif file_name.lower().endswith('.pdf'):
-                response = HttpResponse(f.read(), content_type='application/pdf')
-                response['Content-Disposition'] = f'attachment; filename="{quote(file_name)}"'
-                return response
-            else:
-                return render(request, 'StudentManage/view_file.html', {'file': file_obj, 'content': "Preview not available for this file type."})
-
+            return render(request, 'StudentManage/view_file.html', {'file': file_obj, 'content': file_content})
     except FileNotFoundError:
         raise Http404("File not found")
 
 def editor(request, file_id):
     file_obj = get_object_or_404(CodeFile, id=file_id)
-    
+    file_path = file_obj.file.path
+    try:
+        with open(file_path, 'r') as f:
+            file_content = f.read()
+            return render(request, 'StudentManage/editor.html', {'file': file_obj, 'content': file_content})
+    except FileNotFoundError:
+        raise Http404("File not found")
+
+@csrf_exempt
+def save_code(request, file_id):
+    if request.method == "POST":
+        file_obj = get_object_or_404(CodeFile, id=file_id)
+        try:
+            data = json.loads(request.body)
+            new_code = data.get("code", "")
+            file_path = file_obj.file.path
+            with open(file_path, "w", encoding="utf-8") as f:  # ✅ Explicit encoding added
+                f.write(new_code)
+            return JsonResponse({"success": True, "message": "Code saved successfully!"})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+    return JsonResponse({"success": False, "error": "Invalid request"})
+
+@csrf_exempt
+def run_code(request, file_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            language = data.get("language")
+            code = data.get("code")
+            custom_input = data.get("input", "")
+
+            file_extension = {
+                "python": "py",
+                "c": "c",
+                "cpp": "cpp",
+                "javascript": "js"
+            }.get(language, None)
+
+            if not file_extension:
+                return JsonResponse({"output": "Unsupported language"})
+
+            file_name = f"temp.{file_extension}"
+            with open(file_name, "w", encoding="utf-8") as f:
+                f.write(code)
+
+            command = []
+            if language == "python":
+                command = ["python", file_name]
+            elif language == "c":
+                output_file = "temp.out"
+                compile_command = ["gcc", file_name, "-o", output_file]
+                compile_result = subprocess.run(compile_command, capture_output=True, text=True)
+                if compile_result.stderr:
+                    return JsonResponse({"output": compile_result.stderr})
+                command = ["./" + output_file]
+            elif language == "cpp":
+                output_file = "temp.out"
+                compile_command = ["g++", file_name, "-o", output_file]
+                compile_result = subprocess.run(compile_command, capture_output=True, text=True)
+                if compile_result.stderr:
+                    return JsonResponse({"output": compile_result.stderr})
+                command = ["./" + output_file]
+            elif language == "javascript":
+                command = ["node", file_name]
+
+            result = subprocess.run(command, input=custom_input, text=True, capture_output=True)
+
+            output = result.stdout if result.stdout else result.stderr
+
+            # Cleanup
+            os.remove(file_name)
+            if language in ["c", "cpp"] and os.path.exists("temp.out"):
+                os.remove("temp.out")
+
+            return JsonResponse({"output": output})
+
+        except Exception as e:
+            return JsonResponse({"output": str(e)})
+
+    return JsonResponse({"output": "Invalid request method"})
