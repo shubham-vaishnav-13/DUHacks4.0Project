@@ -6,18 +6,19 @@ import os
 from django.conf import settings
 from django.http import HttpResponse, Http404
 from urllib.parse import quote
-
+from StaffManage.models import Assignment
 # Create your views here.
 
 @login_required
 def home(request):
+    assignments = Assignment.objects.all()
     search_term = request.GET.get('search')
     files = CodeFile.objects.all()
 
     if search_term:
         files = files.filter(file_name__icontains=search_term)
 
-    return render(request, 'StudentManage/home.html', {'files': files, 'student': request.user, 'search_term': search_term})
+    return render(request, 'StudentManage/home.html', {'files': files, 'student': request.user, 'search_term': search_term, 'assignments': assignments})
 
 def upload_file(request):
     if request.method == 'POST':
@@ -64,3 +65,4 @@ def view_file(request, file_id):
 def editor(request, file_id):
     file_obj = get_object_or_404(CodeFile, id=file_id)
     
+

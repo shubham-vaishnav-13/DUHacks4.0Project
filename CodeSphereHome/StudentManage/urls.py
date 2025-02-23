@@ -8,6 +8,7 @@ urlpatterns = [
     path('download_file/<int:file_id>/', views.download_file, name='download_file'),
     path('view_file/<int:file_id>/', views.view_file, name='view_file'),
     path('viewEditor/<int:file_id>/', views.editor, name='viewEditor'),
+    # path('submit_assignment/<int:assignment_id>/', views.submit_assignment, name='submit_assignment'),
     
 ]
 
