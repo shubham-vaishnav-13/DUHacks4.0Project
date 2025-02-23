@@ -7,7 +7,7 @@ urlpatterns = [
     path('delete_file/<int:file_id>/', views.delete_file, name='delete_file'),
     path('download_file/<int:file_id>/', views.download_file, name='download_file'),
     path('view_file/<int:file_id>/', views.view_file, name='view_file'),
-    
+    path('contact/', views.contact, name='contact'),
 ]
 
 from django.conf import settings

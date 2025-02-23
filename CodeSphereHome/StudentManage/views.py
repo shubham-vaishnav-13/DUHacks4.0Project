@@ -6,11 +6,18 @@ import os
 from django.conf import settings
 from django.http import HttpResponse, Http404
 from urllib.parse import quote
+from django.db.models import Q
 # Create your views here.
 
 @login_required
 def home(request):
-    return render(request,'StudentManage/home.html',{'files':CodeFile.objects.all(),'student':request.user})
+    search_term = request.GET.get('search')
+    files = CodeFile.objects.all()
+
+    if search_term:
+        files = files.filter(file_name__icontains=search_term)
+
+    return render(request, 'StudentManage/home.html', {'files': files, 'student': request.user, 'search_term': search_term})
 
 def upload_file(request):
     if request.method == 'POST':
@@ -47,19 +54,27 @@ def download_file(request, file_id):
 def view_file(request, file_id):
     file_obj = get_object_or_404(CodeFile, id=file_id)
     file_path = file_obj.file.path
-    file_name = os.path.basename(file_path)
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:  # Specify encoding here
             file_content = f.read()
-            if file_name.lower().endswith(('.txt', '.py', '.c', '.cpp', '.java', '.js', '.html','.css','.go','.rb','.swift','.rs','.dart','.ts','.json')): #Added more file extensions for better theme support
-                return render(request, 'StudentManage/view_file.html', {'file': file_obj})
-            elif file_name.lower().endswith('.pdf'):
-                response = HttpResponse(f.read(), content_type='application/pdf')
-                response['Content-Disposition'] = f'attachment; filename="{quote(file_name)}"'
-                return response
-            else:
-                return render(request, 'StudentManage/view_file.html', {'file': file_obj, 'content': "Preview not available for this file type."})
-
+        return render(request, 'StudentManage/view_file.html', {'file_obj': file_obj, 'file_content': file_content})
     except FileNotFoundError:
         raise Http404("File not found")
+    except UnicodeDecodeError:
+        return render(request, 'StudentManage/view_file.html', {'file_obj': file_obj, 'file_content': "File could not be decoded.  It may not be a text file."})
+
+
+from .models import Contact
+def contact(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
+        try:
+            contact = Contact.objects.create(name=name, email=email, message=message)
+            return redirect('home') 
+        except Exception as e:
+            return render(request, 'StudentManage/contact.html', {'error': str(e)})
+
+    return render(request, 'StudentManage/contact.html')
 

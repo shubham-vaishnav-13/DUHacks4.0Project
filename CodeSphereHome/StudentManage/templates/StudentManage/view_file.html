@@ -1,29 +1,25 @@
 <!DOCTYPE html>
-{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View File</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-900 text-white">
-    <div class="container mx-auto p-6">
-        <h1 class="text-center text-2xl font-bold">{{ file.file_name }}</h1>
-        <p class="text-center text-gray-400 mb-4">Subject: {{ file.subject }}</p>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
 
-        {% if file.file.url %}
-            {% if file.file.url|slice:"-4:" == ".pdf" %}
-                <iframe src="{{ file.file.url }}" class="w-full h-[80vh]"></iframe>
-            {% elif file.file.url|slice:"-4:" == ".txt" or file.file.url|slice:"-3:" == ".py" or file.file.url|slice:"-2:" == ".c" or file.file.url|slice:"-4:" == ".cpp" %}
-                <pre class="bg-gray-800 p-4 rounded-lg overflow-auto">{{ file.file.read|safe }}</pre>
-            {% else %}
-                <p class="text-center text-red-400">Preview not available for this file type.</p>
-                <iframe src="{{ file.file.url }}" class="w-full h-[80vh]"></iframe>
-                {% endif %}
-        {% else %}
-            <p class="text-center text-red-400">File not found.</p>
-        {% endif %}
+</head>
+<body class="bg-gray-200 text-black">
+    <div class="container mx-auto p-4 flex flex-col items-center justify-center min-h-screen">
+        <h1 class="text-2xl font-bold mb-4 text-center">Viewing: {{ file_obj.file_name }}</h1>
+        <pre><code class="language-python bg-gray-300 p-4 rounded">{{ file_content | safe }}</code></pre>
+
+        <div class="mt-4">   
+            <a href="{% url 'home' %}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Back to Home
+            </a>
+        </div>
     </div>
 </body>
 </html>
