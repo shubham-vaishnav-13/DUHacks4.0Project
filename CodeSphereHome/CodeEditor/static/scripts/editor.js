@@ -40,16 +40,44 @@ function decreaseFontSize() {
 }
 
 function saveCode() {
-    fragment = document.createElement("p");
-    fragment.innerHTML = "Saved Code Successfully";
-    fragment.classList.add("bg-green-500", "p-2", "rounded");
-    document
-        .getElementById("buttons")
-        .insertAdjacentElement("afterend", fragment);
-    setTimeout(() => {
-        fragment.remove();
-    }, 3000);
+    const fileName = document.getElementById("file-name").value.trim();
+    const language = document.getElementById("language").value;
+    const code = editor.getValue();
+
+    if (!fileName) {
+        alert("Please enter a file name.");
+        return;
+    }
+
+    fetch("/CodeEditor/save_code/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken(), // Ensure CSRF protection
+        },
+        body: JSON.stringify({
+            file_name: fileName,
+            file_type: language,
+            code: code,
+            subject: "Programming", // You can modify this as needed
+        }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => console.error("Error:", error));
 }
+
+// Function to get CSRF token from cookies
+function getCSRFToken() {
+    const cookieValue = document.cookie
+        .split("; ")
+        .find(row => row.startsWith("csrftoken="))
+        ?.split("=")[1];
+    return cookieValue || "";
+}
+
 
 function exportCode() {
     let blob = new Blob([editor.getValue()], {

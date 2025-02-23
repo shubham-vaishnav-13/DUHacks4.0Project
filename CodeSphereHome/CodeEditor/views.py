@@ -1,3 +1,4 @@
+from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -42,21 +43,24 @@ def runCode(request):
             elif language == "c":
                 output_file = "temp.out"
                 compile_command = ["gcc", file_name, "-o", output_file]
-                compile_result = subprocess.run(compile_command, capture_output=True, text=True)
+                compile_result = subprocess.run(
+                    compile_command, capture_output=True, text=True)
                 if compile_result.stderr:
                     return JsonResponse({"output": compile_result.stderr})
                 command = ["./" + output_file]
             elif language == "cpp":
                 output_file = "temp.out"
                 compile_command = ["g++", file_name, "-o", output_file]
-                compile_result = subprocess.run(compile_command, capture_output=True, text=True)
+                compile_result = subprocess.run(
+                    compile_command, capture_output=True, text=True)
                 if compile_result.stderr:
                     return JsonResponse({"output": compile_result.stderr})
                 command = ["./" + output_file]
             elif language == "javascript":
                 command = ["node", file_name]
 
-            result = subprocess.run(command, input=custom_input, text=True, capture_output=True)
+            result = subprocess.run(
+                command, input=custom_input, text=True, capture_output=True)
 
             output = result.stdout if result.stdout else result.stderr
 
@@ -105,3 +109,35 @@ def save_code(request):
             return JsonResponse({"success": False, "error": str(e)})
 
     return JsonResponse({"success": False, "error": "Invalid request method"})
+
+
+@csrf_exempt
+@login_required
+def save_code(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        file_name = data.get("file_name")
+        file_type = data.get("file_type")
+        code_content = data.get("code")
+        subject = data.get("subject", "Programming")
+
+        if not file_name or not code_content:
+            return JsonResponse({"message": "File name and code are required"}, status=400)
+
+        # Construct file path
+        file_path = f"code_files/{file_name}.{file_type}"
+
+        # Save file to database
+        code_file = CodeFile(
+            student=request.user,
+            file_name=file_name,
+            file_type=file_type,
+            subject=subject
+        )
+        code_file.file.save(file_path, ContentFile(code_content))
+        code_file.save()
+
+        return JsonResponse({"message": "File saved successfully!"})
+
+    return JsonResponse({"message": "Invalid request"}, status=400)
