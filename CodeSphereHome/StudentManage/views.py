@@ -6,7 +6,7 @@ import os
 from django.conf import settings
 from django.http import HttpResponse, Http404
 from urllib.parse import quote
-from django.db.models import Q
+
 # Create your views here.
 
 @login_required
@@ -60,21 +60,7 @@ def view_file(request, file_id):
         return render(request, 'StudentManage/view_file.html', {'file_obj': file_obj, 'file_content': file_content})
     except FileNotFoundError:
         raise Http404("File not found")
-    except UnicodeDecodeError:
-        return render(request, 'StudentManage/view_file.html', {'file_obj': file_obj, 'file_content': "File could not be decoded.  It may not be a text file."})
 
-
-from .models import Contact
-def contact(request):
-    if request.method == 'POST':
-        name = request.POST.get('name')
-        email = request.POST.get('email')
-        message = request.POST.get('message')
-        try:
-            contact = Contact.objects.create(name=name, email=email, message=message)
-            return redirect('home') 
-        except Exception as e:
-            return render(request, 'StudentManage/contact.html', {'error': str(e)})
-
-    return render(request, 'StudentManage/contact.html')
-
+def editor(request, file_id):
+    file_obj = get_object_or_404(CodeFile, id=file_id)
+    
