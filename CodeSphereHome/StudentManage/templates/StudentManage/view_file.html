@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View File</title>
+</head>
+<body>
+    <h1>{{ file.file_name }}</h1>
+    <p>Subject: {{ file.subject }}</p>
+    <p>Uploaded on: {{ file.uploaded_at|date:"M d, Y" }}</p>
+    <a href="{{ file.file.url }}">Download</a>
+</body>
+</html>

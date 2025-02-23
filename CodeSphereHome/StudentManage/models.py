@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 # Create your models here.
 # Create your models here.
@@ -6,7 +7,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class CodeFile(models.Model):
-    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     file_name = models.CharField(max_length=255)
     file = models.FileField(upload_to='code_files/')
     file_type = models.CharField(max_length=255)

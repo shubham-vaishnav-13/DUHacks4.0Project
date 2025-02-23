@@ -12,6 +12,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+import os
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -98,9 +103,7 @@ EMAIL_HOST_PASSWORD = 'iuzq jvuq dgnw plwv'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 AUTHENTICATION_BACKENDS = [
-    # For Students & Teachers (Web App Users)
     'HomePageAuth.authentication.EmailAuthBackend',
-    # Default Django Admin Authentication (Superusers)
     'django.contrib.auth.backends.ModelBackend',
 ]
 

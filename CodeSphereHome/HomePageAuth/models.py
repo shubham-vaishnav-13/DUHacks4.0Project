@@ -18,32 +18,39 @@ class Role(models.Model):
 #  Custom User Manager (For HomePageAuth Users)
 
 
-class UserManager(BaseUserManager):
-    def create_user(self, email, username, password=None, role=None):
-        """Creates and returns a normal user (Students, Teachers)"""
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
         if not email:
-            raise ValueError("Users must have an email address")
+            raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
-        user = self.model(email=email, username=username, role=role)
+        user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, email, password=None):
-        """Creates and returns a superuser using Django's default auth system"""
-        from django.contrib.auth.models import User as DefaultUser  # Uses Django's auth.User
-        return DefaultUser.objects.create_superuser(username, email, password)
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, password, **extra_fields)
 
 #  Custom User Model (For App Users: Students, Teachers)
 
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
+    username = models.CharField(max_length=150, unique=True, null=True, blank=True)
     role = models.ForeignKey(
         Role, on_delete=models.SET_NULL, null=True, blank=True)
 
-    #  Override default manager
-    objects = UserManager()
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
     #  Prevents non-admin users from accessing Django Admin
     is_staff = models.BooleanField(default=False)
@@ -55,8 +62,10 @@ class User(AbstractUser):
         Permission, related_name="custom_user_permissions_set", blank=True
     )
 
+    objects = CustomUserManager()
+
     def __str__(self):
-        return self.username
+        return self.email
 
 #  Profile Model (For additional user details)
 
@@ -81,7 +90,7 @@ class Profile(models.Model):
         upload_to="profile_pics/", default="default.jpg", blank=True, null=True)
 
     def __str__(self):
-        return self.user.username
+        return self.user.email
 
 #  Login History Model (Tracks login attempts)
 
