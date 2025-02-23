@@ -6,6 +6,7 @@ import os
 from django.conf import settings
 from django.http import HttpResponse, Http404
 from urllib.parse import quote
+
 # Create your views here.
 
 @login_required
@@ -63,3 +64,6 @@ def view_file(request, file_id):
     except FileNotFoundError:
         raise Http404("File not found")
 
+def editor(request, file_id):
+    file_obj = get_object_or_404(CodeFile, id=file_id)
+    

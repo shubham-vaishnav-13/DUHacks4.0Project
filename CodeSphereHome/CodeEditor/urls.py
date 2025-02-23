@@ -1,7 +1,8 @@
-from django.contrib import admin
-from django.urls import path, include
-from .views import *;
+from django.urls import path
+from .views import editor, runCode, save_code
+
 urlpatterns = [
-    path("",view=editor,name="editor"),
-    path("run_code", view=runCode, name="run_code"),
+    path("", editor, name="editor"),
+    path("run_code", runCode, name="run_code"),
+    path("save_code/", save_code, name="save_code"),
 ]

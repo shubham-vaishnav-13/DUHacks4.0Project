@@ -12,7 +12,7 @@ class Role(models.Model):
     role_name = models.CharField(
         max_length=20, choices=ROLE_CHOICES, unique=True)
 
-    def _str_(self):
+    def __str__(self):
         return self.role_name
 
 #  Custom User Manager
@@ -37,7 +37,6 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-
 #  Custom User Model (For App Users: Students, Teachers)
 
 
@@ -56,7 +55,7 @@ class User(AbstractUser):
     user_permissions = models.ManyToManyField(
         Permission, related_name="custom_user_permissions_set", blank=True)
 
-    def _str_(self):
+    def __str__(self):
         return self.username
 
 #  Profile Model (For additional user details)
@@ -116,5 +115,5 @@ class Profile(models.Model):
 
     social_links = models.JSONField(default=dict, blank=True)
 
-    def _str_(self):
+    def __str__(self):
         return self.user.username
