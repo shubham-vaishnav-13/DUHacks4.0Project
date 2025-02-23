@@ -8,7 +8,6 @@ This project is a comprehensive platform designed for DDU college students and f
 ## 🚀 Features
 ### 🏫 For Faculty:
 ✅ Assign tasks to students.
-✅ Create and manage classrooms.
 ✅ Manage student data and track submitted work.
 
 ### 🎓 For Students:
@@ -17,9 +16,9 @@ This project is a comprehensive platform designed for DDU college students and f
 ✅ Maintain a personal profile page.
 
 ### 💻 Code Editor:
-✅ Supports Python, C, C++, and JavaScript.
+✅ Supports Python, C, C++, and JavaScript and python.
 ✅ Save and manage code snippets.
-✅ Export code in multiple formats: `.pdf`, `.txt`, `.py`, `.c`, `.cpp`, `.js`.
+✅ Export code in multiple formats:  `.txt`, `.py`, `.c`, `.cpp`, `.js`.
 ✅ Uses pipelining and subprocess for code compilation and executing custom input.
 
 ### 🔒 Authentication:
@@ -65,9 +64,9 @@ This project is a comprehensive platform designed for DDU college students and f
 ---
 ## Our Team 
 - Darshan Kania 
+- Shubham Vaishnav
 - Deep Vaishnav
 - Manthan Parekh
-- Shubham Vaishnav
 
 ## 🤝 Team & Contributions
 We welcome contributions! Feel free to open an issue or submit a pull request.  
