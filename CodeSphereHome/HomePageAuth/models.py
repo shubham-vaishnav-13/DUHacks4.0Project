@@ -90,13 +90,6 @@ class Profile(models.Model):
         ('mh', 'Mechatronics Engineering'),
     ]
 
-    #  Gender Choices
-    GENDER_CHOICES = [
-        ('male', 'Male'),
-        ('female', 'Female'),
-        ('other', 'Other'),
-    ]
-
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=255)
 
